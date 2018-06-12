@@ -12,8 +12,11 @@ setup(
     setup_requires=["setuptools_scm"],
     use_scm_version=True,
     install_requires=[
+        'attrdict>=2,<3',
+        'C3Linearize>=0.1.0,<1',
+        'toposort>=1.5,<2',
         'yaql>=1.1.3,<2',
-        'jinja>=2.10,<3',
+        'jinja2>=2.10,<3',
         'ruamel.yaml>=0.15,<1'
     ],
     python_requires=">=3.6, <=3.7",
