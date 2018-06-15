@@ -10,6 +10,7 @@ import runpy as _runpy
 import subprocess as _subprocess
 import sys as _sys
 import yaql as _yaql
+from . import scanextras as _scanextras
 from .obj import Obj as _Obj
 from .taskflow import TaskFlow as _TaskFlow
 
@@ -171,6 +172,30 @@ def _init_task_py_deps(ctx):
         )
 
 
+def _init_task_load_plugins(ctx):
+    extras = ctx.extras
+
+    origins = _collections.defaultdict(list)
+
+    for entry_point in _pkg_resources.iter_entry_points("anygen", "extras"):
+        these_extras = entry_point.load()
+        for k1, v1 in these_extras.items():
+            for k2, v2 in v1.items():
+                origins[(k1, k2)].append(str(entry_point))
+                extras[k1][k2] = v2
+
+    dups = []
+    for k, these_origins in origins.items():
+        if len(these_origins) > 1:
+            dups.append(('%s_%s' % k, these_origins))
+
+    if dups:
+        raise RuntimeError(
+            "conflicting plugins installed. Some 'extras' are defined in multiple plugins",
+            dups
+        )
+
+
 def _init_task_load_py(ctx):
     extras = ctx.extras
 
@@ -182,16 +207,11 @@ def _init_task_load_py(ctx):
 
         py_dict = _runpy.run_path(py_fname)
 
-        for name, val in py_dict.items():
-            if name.startswith('_'):
-                continue
+        these_extras = _scanextras.scan(py_dict)
 
-            split_name = name.split('_', 1)
-            if len(split_name) == 1:
-                continue
-
-            name_head, name_tail = split_name
-            extras[name_head][name_tail] = val
+        for k1, v1 in these_extras.items():
+            for k2, v2 in v1.items():
+                extras[k1][k2] = v2
 
 
 def _init_task_setup_yaql_extras(ctx):
@@ -207,6 +227,9 @@ def _init_task_setup_jinja(ctx):
         ),
         keep_trailing_newline=True
     )
+
+    for k, v in ctx.extras["jinjaglobals"].items():
+        jinja_env.globals[k] = v
 
     for k, v in ctx.extras["jinjafilter"].items():
         jinja_env.filters[k] = v
@@ -439,6 +462,7 @@ class AnygenEngine:
             ('load_yamls', _init_task_load_yamls),
             ('merge_yaml_consts', _init_task_merge_yaml_consts),
             ('py_deps', _init_task_py_deps),
+            ('load_plugins', _init_task_load_plugins),
             ('load_py', _init_task_load_py),
             ('setup_yaql_extras', _init_task_setup_yaql_extras),
             ('setup_jinja', _init_task_setup_jinja),
