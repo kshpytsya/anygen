@@ -445,7 +445,8 @@ class AnygenEngine:
                     'yaql.convertInputData': True
                 })
         self._yaql_ctx = _yaql.create_context(
-            convention=_yaql.language.conventions.PythonConvention()
+            convention=_yaql.language.conventions.PythonConvention(),
+            delegates=True
         )
         self._yaql_expr = _Obj(dict((k, self._yaql_engine(v)) for k, v in [
             ("merge_yaml_consts", "call(let, [none], $.aggregate($1.merge_with($2.yaml.get(const, {})), {}))"),
