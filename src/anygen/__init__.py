@@ -423,7 +423,7 @@ def _register_std_functions():
 
     @_std_function_registry
     def to_json(data):
-        return _json.dumps(data)
+        return _json.dumps(data, sort_keys=True)
 
 
 _register_std_functions()
