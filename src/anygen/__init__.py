@@ -86,7 +86,7 @@ def _init_task_load_yamls(ctx):
     ROOT = object()
 
     loaded = {}
-    yaml_loader = _YAML(typ='rt', pure=True)
+    yaml_loader = _YAML(typ='safe', pure=True)
 
     def load_list(classes):
         for i in classes:
