@@ -19,7 +19,7 @@ setup(
         'jinja2>=2.10,<3',
         'ruamel.yaml>=0.15,<1'
     ],
-    python_requires=">=3.6, <=3.7",
+    python_requires=">=3.6, <4",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[
